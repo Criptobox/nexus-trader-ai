@@ -1,3 +1,11 @@
+## 2.1.0 — Market Memory + Trade Journal
+
+- Added deterministic local-first Market Memory service.
+- Added structured Trade Journal service.
+- Added similarity search over prior market contexts.
+- Added journal statistics and outcome/lesson recording.
+- Kept storage isolated from the existing UI/agent architecture for safe incremental integration.
+
 # Changelog
 
 ## 2.0.1 — NEXUS 3D + Intelligence Patch

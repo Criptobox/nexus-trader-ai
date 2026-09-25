@@ -134,3 +134,17 @@ Este software es una herramienta educativa y de simulación. **No es asesoramien
 ## 📄 Licencia
 
 MIT — úsalo, modifícalo y compártelo.
+
+## NEXUS 2.1 — Market Memory + Trade Journal
+
+This release adds two local-first deterministic services:
+
+- `src/services/market-memory.ts` — stores market situations and finds similar historical contexts using symbol/timeframe/regime/tags/features.
+- `src/services/trade-journal.ts` — stores structured decisions, agent votes, risk/context and eventual outcomes.
+
+The services use browser `localStorage` and do not require an external database or LLM.
+They are deliberately isolated so the existing NEXUS UI and agent architecture can adopt them incrementally.
+
+Recommended integration flow:
+
+`market snapshot → agents → decision → tradeJournal.create() → marketMemory.add() → outcome → updateOutcome()/journal.close()`
