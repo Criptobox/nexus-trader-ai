@@ -1,0 +1,219 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-bull: var(--bull);
+  --color-bear: var(--bear);
+  --color-gold: var(--gold);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ── NEXUS premium dark trading theme ─────────────────────── */
+:root {
+  --radius: 0.875rem;
+  --background: #0B0F17;
+  --foreground: #E8ECF3;
+  --card: #111726;
+  --card-foreground: #E8ECF3;
+  --popover: #131A2A;
+  --popover-foreground: #E8ECF3;
+  --primary: #10B981;
+  --primary-foreground: #06251A;
+  --secondary: #1A2337;
+  --secondary-foreground: #E8ECF3;
+  --muted: #161E30;
+  --muted-foreground: #8A94A8;
+  --accent: #1A2337;
+  --accent-foreground: #E8ECF3;
+  --destructive: #EF4444;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #10B981;
+  --bull: #10B981;
+  --bear: #EF4444;
+  --gold: #F59E0B;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --chart-1: #10B981;
+  --chart-2: #38BDF8;
+  --chart-3: #F59E0B;
+  --chart-4: #A78BFA;
+  --chart-5: #F472B6;
+  --sidebar: #0B0F17;
+  --sidebar-foreground: #E8ECF3;
+  --sidebar-primary: #10B981;
+  --sidebar-primary-foreground: #06251A;
+  --sidebar-accent: #1A2337;
+  --sidebar-accent-foreground: #E8ECF3;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #10B981;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background:
+      radial-gradient(1200px 500px at 15% -10%, rgba(16, 185, 129, 0.07), transparent 60%),
+      radial-gradient(900px 420px at 110% 10%, rgba(56, 189, 248, 0.05), transparent 55%),
+      #0B0F17;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+  }
+  .glass-strong {
+    background: linear-gradient(180deg, rgba(23, 30, 48, 0.92), rgba(15, 20, 34, 0.96));
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(16px);
+  }
+  .text-bull { color: #10B981; }
+  .text-bear { color: #EF4444; }
+  .text-gold { color: #F59E0B; }
+
+  /* scrollbar premium */
+  .nexus-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+  .nexus-scroll::-webkit-scrollbar-track { background: transparent; }
+  .nexus-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 99px;
+  }
+  .nexus-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+
+  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+  .safe-top { padding-top: max(env(safe-area-inset-top), 0px); }
+
+  /* ticker marquee */
+  @keyframes nexus-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: nexus-marquee 40s linear infinite;
+  }
+  .animate-marquee:hover { animation-play-state: paused; }
+
+  /* glow para el botón del agente */
+  @keyframes nexus-glow {
+    0%, 100% { box-shadow: 0 0 18px rgba(16, 185, 129, 0.45); }
+    50% { box-shadow: 0 0 34px rgba(16, 185, 129, 0.75); }
+  }
+  .glow-agent { animation: nexus-glow 2.6s ease-in-out infinite; }
+
+  @keyframes nexus-pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+    70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
+  .pulse-danger { animation: nexus-pulse-ring 1.6s ease-out infinite; }
+
+  @keyframes nexus-fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: nexus-fade-up 0.35s ease both; }
+
+  /* ── NEXUS Avatar: animaciones de estado ─────────────────── */
+  @keyframes nexus-spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .nexus-spin-slow { animation: nexus-spin-slow 14s linear infinite; }
+  .nexus-spin-fast { animation: nexus-spin-slow 1.6s linear infinite; }
+
+  @keyframes nexus-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.028); }
+  }
+
+  @keyframes nexus-sonar {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  .nexus-sonar { animation: nexus-sonar 1.7s ease-out infinite; }
+  .nexus-sonar-delay { animation-delay: 0.85s; }
+
+  @keyframes nexus-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .nexus-orbit { animation: nexus-orbit 2.6s linear infinite; }
+  .nexus-orbit-dot {
+    position: absolute;
+    width: 9%;
+    height: 9%;
+    border-radius: 9999px;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+  }
+
+  @keyframes nexus-eq {
+    0%, 100% { height: 4px; }
+    50% { height: 15px; }
+  }
+  .nexus-eq-bar {
+    display: block;
+    width: 3.5px;
+    height: 6px;
+    border-radius: 99px;
+    animation-name: nexus-eq;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+
+  @keyframes nexus-glow-pulse {
+    0%, 100% { opacity: 0.65; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+}
