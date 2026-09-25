@@ -8,7 +8,7 @@
 import dynamic from 'next/dynamic'
 import { NexusAvatar, type NexusState } from './nexus-avatar'
 
-export type Nexus3DState = NexusState | 'happy' | 'alert'
+export type Nexus3DState = NexusState | 'happy' | 'alert' | 'trading'
 
 const NexusScene = dynamic(
   () => import('./nexus-3d-scene').then((m) => m.NexusScene3D),

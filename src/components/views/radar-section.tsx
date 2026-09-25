@@ -18,6 +18,7 @@ interface Opportunity {
   symbol: string
   name: string
   score: number
+  scoreBreakdown: { momentum: number; trend: number; volume: number; structure: number; stability: number }
   type: 'EMERGENTE' | 'IMPULSO' | 'TENDENCIA' | 'REVERSION' | 'ESTABLE'
   action: 'ZONA DE INTERÉS' | 'VIGILAR' | 'OBSERVAR' | 'EVITAR'
   risk: 'bajo' | 'medio' | 'alto'
@@ -30,6 +31,7 @@ interface Opportunity {
   imageUrl?: string
   trendingRank?: number
   isCustom?: boolean
+  coingeckoId?: string
 }
 
 interface RadarResult {
@@ -100,6 +102,25 @@ function OpportunityCard({ o, rank, onAsk }: { o: Opportunity; rank: number; onA
           {up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
           {up ? '+' : ''}{o.momentum24h.toFixed(1)}%
         </span>
+      </div>
+
+      <div className="mt-2 grid grid-cols-5 gap-1">
+        {([
+          ['Mom', o.scoreBreakdown.momentum],
+          ['Trend', o.scoreBreakdown.trend],
+          ['Vol', o.scoreBreakdown.volume],
+          ['Struct', o.scoreBreakdown.structure],
+          ['Stab', o.scoreBreakdown.stability],
+        ] as const).map(([label, value]) => (
+          <div key={label} className="rounded-lg bg-surface/70 px-1.5 py-1">
+            <div className="flex items-center justify-between text-[7px] text-muted-foreground">
+              <span>{label}</span><span className="font-mono">{value}</span>
+            </div>
+            <div className="mt-1 h-1 overflow-hidden rounded-full bg-surface-2">
+              <div className="h-full rounded-full bg-primary/80 transition-all" style={{ width: `${value}%` }} />
+            </div>
+          </div>
+        ))}
       </div>
 
       <p className="mt-2 line-clamp-3 text-[11px] leading-snug text-muted-foreground">{o.thesis}</p>

@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider'
 import { CoinIcon } from '@/components/coin-icon'
 import { AreaChartSimple } from '@/components/charts/area-chart'
 import { useToast } from '@/hooks/use-toast'
-import type { BacktestMetrics, EquityPoint, BacktestTrade } from '@/lib/backtest/engine'
+import type { BacktestMetrics, EquityPoint, BacktestTrade } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 const STRATEGIES = [
