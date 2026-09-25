@@ -28,10 +28,9 @@ export interface BacktestConfig {
   initialCapital: number
   riskPerTradePct: number
   commissionPct: number
+  slippagePct?: number
 }
 
-const COMMISSION = 0.001
-const SLIPPAGE = 0.0005
 
 interface OpenTrade {
   side: 'long' | 'short'
@@ -127,6 +126,8 @@ export async function runBacktest(config: BacktestConfig): Promise<BacktestResul
   const trades: BacktestTrade[] = []
   const equityCurve: EquityPoint[] = []
   const riskPerTrade = (config.riskPerTradePct ?? 1) / 100
+  const commission = Math.max(0, config.commissionPct ?? 0.1) / 100
+  const slippage = Math.max(0, config.slippagePct ?? 0.05) / 100
 
   const buyHold = candles[0].c
 
@@ -151,7 +152,7 @@ export async function runBacktest(config: BacktestConfig): Promise<BacktestResul
       if (exitPrice !== null) {
         const sign = open.side === 'long' ? 1 : -1
         const gross = (exitPrice - open.entryPrice) * open.qty * sign
-        const fees = (open.entryPrice + exitPrice) * open.qty * (COMMISSION + SLIPPAGE)
+        const fees = (open.entryPrice + exitPrice) * open.qty * (commission + slippage)
         const net = gross - fees
         cash += open.qty * open.entryPrice + net
         trades.push({
@@ -177,7 +178,7 @@ export async function runBacktest(config: BacktestConfig): Promise<BacktestResul
       const qty = riskUsd / stopDist
       const positionValue = qty * price
       if (positionValue <= cash * 0.98 && qty > 0) {
-        const entryPrice = price * (1 + SLIPPAGE)
+        const entryPrice = price * (1 + slippage)
         cash -= qty * entryPrice // reserva los fondos al abrir
         open = {
           side: 'long', entryIdx: i, entryPrice, qty,
@@ -192,7 +193,7 @@ export async function runBacktest(config: BacktestConfig): Promise<BacktestResul
       const qty = riskUsd / stopDist
       const positionValue = qty * price
       if (positionValue <= cash * 0.98 && qty > 0) {
-        const entryPrice = price * (1 - SLIPPAGE)
+        const entryPrice = price * (1 - slippage)
         cash -= qty * entryPrice // reserva los fondos al abrir
         open = {
           side: 'short', entryIdx: i, entryPrice, qty,
@@ -222,7 +223,7 @@ export async function runBacktest(config: BacktestConfig): Promise<BacktestResul
     const last = candles[candles.length - 1].c
     const sign = open.side === 'long' ? 1 : -1
     const gross = (last - open.entryPrice) * open.qty * sign
-    const fees = (open.entryPrice + last) * open.qty * (COMMISSION + SLIPPAGE)
+    const fees = (open.entryPrice + last) * open.qty * (commission + slippage)
     const net = gross - fees
     cash += open.qty * open.entryPrice + net
     trades.push({
