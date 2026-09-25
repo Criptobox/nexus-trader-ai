@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
       params: body.params ?? {},
       initialCapital: Math.max(100, Number(body.initialCapital ?? 10000)),
       riskPerTradePct: Math.min(5, Math.max(0.1, Number(body.riskPerTradePct ?? 1))),
-      commissionPct: Number(body.commissionPct ?? 0.1),
+      commissionPct: Math.min(2, Math.max(0, Number(body.commissionPct ?? 0.1))),
+      slippagePct: Math.min(2, Math.max(0, Number(body.slippagePct ?? 0.05))),
     }
 
     const result = await runBacktest(config)

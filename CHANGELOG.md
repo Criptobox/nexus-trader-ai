@@ -1,4 +1,14 @@
-# Changelog — NEXUS Trader AI
+# Changelog
+
+## 2.0.1 — NEXUS 3D + Intelligence Patch
+- Replaced the chrome-orb 3D avatar with a procedural humanoid cyber-agent built with Three.js/React Three Fiber.
+- Added state-reactive head/eye tracking, speaking animation, chest intelligence core, lighting and alert/trading states.
+- Added transparent Radar score breakdown: momentum, trend, volume, structure and stability.
+- Improved memory retrieval with token-level relevance in addition to exact matching, recency and importance.
+- Fixed the backtesting engine so configured commission is actually respected.
+- Added configurable slippage support to the backtest API with safe bounds.
+
+## NEXUS Trader AI
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 

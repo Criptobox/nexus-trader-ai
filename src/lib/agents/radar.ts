@@ -21,6 +21,7 @@ export interface Opportunity {
   symbol: string
   name: string
   score: number                 // 0-100
+  scoreBreakdown: { momentum: number; trend: number; volume: number; structure: number; stability: number }
   type: OpportunityType
   action: OpportunityAction
   risk: OpportunityRisk
@@ -147,6 +148,13 @@ function scoreQuote(
     symbol: q.symbol,
     name: name ?? q.name ?? q.symbol,
     score: final,
+    scoreBreakdown: {
+      momentum: Math.round(momentum * 100),
+      trend: Math.round(trend * 100),
+      volume: Math.round(volRank * 100),
+      structure: Math.round(highProx * 100),
+      stability: Math.round((1 - volPenalty) * 100),
+    },
     type,
     action: actionOf(type, final, momentum, risk),
     risk,

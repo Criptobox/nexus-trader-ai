@@ -66,10 +66,14 @@ export async function recall(options: {
   const scored = rows.map((r) => {
     const ageDays = (now - new Date(r.createdAt).getTime()) / 86_400_000
     const recency = Math.exp(-ageDays / 14) // decae en ~2 semanas
-    const q = (options.query ?? '').toLowerCase()
-    const matches =
-      (q && (r.key.toLowerCase().includes(q) || r.content.toLowerCase().includes(q)) ? 0.6 : 0) +
-      r.importance * 0.6 + recency * 0.5
+    const q = (options.query ?? '').toLowerCase().trim()
+    const queryTokens = q.split(/[^a-z0-9áéíóúñ]+/i).filter((t) => t.length >= 2)
+    const haystack = `${r.key} ${r.content} ${(r.tags || '')}`.toLowerCase()
+    const tokenHits = queryTokens.length
+      ? queryTokens.filter((token) => haystack.includes(token)).length / queryTokens.length
+      : 0
+    const exact = q && (r.key.toLowerCase().includes(q) || r.content.toLowerCase().includes(q)) ? 0.35 : 0
+    const matches = exact + tokenHits * 0.45 + r.importance * 0.6 + recency * 0.5
     return { row: r, score: matches }
   })
 
