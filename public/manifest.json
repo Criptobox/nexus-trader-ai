@@ -1,0 +1,54 @@
+{
+  "name": "NEXUS Trader AI — Agente de Trading Cripto",
+  "short_name": "NEXUS Trader",
+  "description": "Agente de trading cripto multiagente con voz, backtesting, paper trading, Risk Engine y Kill Switch.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B0F17",
+  "theme_color": "#0B0F17",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hablar con el agente",
+      "short_name": "Agente",
+      "description": "Conversa por voz con el comité multiagente",
+      "url": "/?view=agent"
+    },
+    {
+      "name": "Mercados",
+      "short_name": "Mercados",
+      "url": "/?view=markets"
+    }
+  ]
+}

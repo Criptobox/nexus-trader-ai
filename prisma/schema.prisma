@@ -1,0 +1,194 @@
+// ─────────────────────────────────────────────────────────────
+// NEXUS Trader AI — Esquema de base de datos (SQLite + Prisma)
+// Módulos: memoria del agente, conversaciones, paper trading,
+// risk engine, kill switch, backtesting, vault de API keys,
+// configuración del router multi-modelo y decisiones del agente.
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Configuración global (clave/valor JSON) ──────────────────
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON serializado
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// ── Vault de claves API (AES-256-GCM) ────────────────────────
+model VaultKey {
+  id         String   @id @default(cuid())
+  label      String   // nombre amigable: "Binance Main"
+  exchange   String   @default("binance")
+  scope      String   @default("read") // read | trade | withdraw
+  cipherText String   // clave cifrada (hex)
+  iv         String   // vector de inicialización (hex)
+  authTag    String   // tag GCM (hex)
+  masked     String   // vista enmascarada: "AbC4...Xy9z"
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ── Conversaciones del agente ────────────────────────────────
+model Conversation {
+  id        String    @id @default(cuid())
+  title     String    @default("Nueva conversación")
+  agentId   String    @default("orchestrator")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // user | assistant | system | tool
+  agentId        String?      // qué agente especialista respondió
+  content        String
+  meta           String?      // JSON: decisiones, datos de mercado, señales
+  createdAt      DateTime     @default(now())
+}
+
+// ── Memoria del agente (episódica + semántica + preferencias) ─
+model AgentMemory {
+  id         String   @id @default(cuid())
+  kind       String   @default("episodic") // episodic | semantic | preference | lesson
+  key        String   // clave de recuperación: "BTC-tendencia", "user-riesgo"
+  content    String
+  importance Float    @default(0.5) // 0..1 — pondera el recuerdo
+  tags       String   @default("[]") // JSON array
+  hits       Int      @default(0)
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([kind, key])
+}
+
+// ── Paper trading ────────────────────────────────────────────
+model PaperAccount {
+  id              String   @id @default(cuid())
+  name            String   @default("Cuenta Principal")
+  baseCurrency    String   @default("USDT")
+  startingBalance Float
+  cash            Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orders          PaperOrder[]
+  positions       PaperPosition[]
+}
+
+model PaperPosition {
+  id          String       @id @default(cuid())
+  accountId   String
+  account     PaperAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  symbol      String
+  side        String       // long | short
+  qty         Float
+  entryPrice  Float
+  stopLoss    Float?
+  takeProfit  Float?
+  status      String       @default("open") // open | closed
+  closePrice  Float?
+  realizedPnl Float?
+  source      String       @default("manual") // manual | agent
+  openedAt    DateTime     @default(now())
+  closedAt    DateTime?
+  orders      PaperOrder[]
+}
+
+model PaperOrder {
+  id           String         @id @default(cuid())
+  accountId    String
+  account      PaperAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  positionId   String?
+  position     PaperPosition? @relation(fields: [positionId], references: [id])
+  symbol       String
+  side         String         // buy | sell
+  type         String         @default("market") // market | limit
+  qty          Float
+  price        Float?         // precio límite
+  status       String         @default("filled") // pending | filled | rejected | cancelled
+  filledPrice  Float?
+  reason       String?        // por qué fue rechazada (risk engine)
+  source       String         @default("manual") // manual | agent | risk | killswitch
+  realizedPnl  Float?
+  createdAt    DateTime       @default(now())
+  filledAt     DateTime?
+}
+
+// ── Risk Engine ──────────────────────────────────────────────
+model RiskConfig {
+  id                   String @id @default(cuid())
+  maxRiskPerTrade      Float  @default(1.0)  // % del capital por operación
+  maxDailyLoss         Float  @default(4.0)  // % que dispara stop diario
+  maxDrawdown          Float  @default(12.0) // % desde el pico de equity
+  maxOpenPositions     Int    @default(5)
+  maxPortfolioExposure Float  @default(60.0) // % del capital invertido
+  maxLeverage          Float  @default(1.0)
+  atrStopMultiplier    Float  @default(2.0)
+  minRewardRisk        Float  @default(1.5)  // R:R mínimo exigido
+  consecutiveLossLimit Int    @default(3)
+  volatilityGuard      Boolean @default(true) // pausa si el ATR% se dispara
+  updatedAt            DateTime @updatedAt
+}
+
+model RiskEvent {
+  id        String   @id @default(cuid())
+  type      String   // position_size_capped | daily_loss_stop | exposure_rejected | ...
+  severity  String   @default("info") // info | warning | critical
+  message   String
+  symbol    String?
+  meta      String?  // JSON
+  createdAt DateTime @default(now())
+}
+
+// ── Kill Switch ──────────────────────────────────────────────
+model KillSwitchState {
+  id           String    @id @default(cuid())
+  active       Boolean   @default(false)
+  level        String    @default("normal") // normal | soft_stop | full_stop
+  reason       String?
+  triggeredBy  String?   // manual | risk_engine | daily_loss | drawdown
+  activatedAt  DateTime?
+  autoResumeAt DateTime?
+  meta         String?   // JSON: snapshot de métricas al activar
+  updatedAt    DateTime  @updatedAt
+}
+
+// ── Backtesting ──────────────────────────────────────────────
+model BacktestRun {
+  id             String   @id @default(cuid())
+  name           String
+  symbol         String
+  interval       String   @default("1h")
+  strategy       String
+  params         String   @default("{}") // JSON
+  initialCapital Float
+  metrics        String   @default("{}") // JSON: cagr, sharpe, maxDD, winRate...
+  equityCurve    String   @default("[]") // JSON: [{t, equity}]
+  trades         String   @default("[]") // JSON: lista de trades
+  createdAt      DateTime @default(now())
+}
+
+// ── Decisiones del sistema multiagente ───────────────────────
+model AgentDecision {
+  id         String   @id @default(cuid())
+  symbol     String
+  action     String   // buy | sell | hold
+  confidence Float    // 0..1
+  reasoning  String
+  agents     String   @default("[]") // JSON: opiniones de cada especialista
+  riskCheck  String?  // JSON: resultado del risk engine
+  executed   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
